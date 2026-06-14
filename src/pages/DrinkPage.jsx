@@ -5,13 +5,33 @@ import { getShopById } from '../services/shops';
 import { getReviewsByDrink, deleteReview } from '../services/reviews';
 import { useAuth } from '../contexts/AuthContext';
 
+function SectionLabel({ children }) {
+  return (
+    <div className="mb-3">
+      <p className="section-label">{children}</p>
+      <div className="h-px bg-border" />
+    </div>
+  );
+}
+
 function StarDisplay({ rating }) {
   if (!rating) return null;
   return (
-    <span className="text-yellow-400 text-sm">
-      {'★'.repeat(rating)}{'☆'.repeat(5 - rating)}
+    <span className="text-sm">
+      <span className="text-accent">{'★'.repeat(rating)}</span>
+      <span className="text-faded">{'☆'.repeat(5 - rating)}</span>
     </span>
   );
+}
+
+function formatDate(ts) {
+  if (!ts) return '';
+  const d = ts.toDate ? ts.toDate() : new Date(ts);
+  const now = new Date();
+  const mm = String(d.getMonth() + 1).padStart(2, '0');
+  const dd = String(d.getDate()).padStart(2, '0');
+  if (d.getFullYear() === now.getFullYear()) return `${mm}.${dd}`;
+  return `${d.getFullYear()}.${mm}.${dd}`;
 }
 
 export default function DrinkPage() {
@@ -49,35 +69,35 @@ export default function DrinkPage() {
     }
   }
 
-  if (loading) return <div className="p-8 text-gray-400 text-sm">載入中...</div>;
-  if (!drink) return <div className="p-8 text-gray-400 text-sm">找不到品項</div>;
+  if (loading) return <div className="p-8 text-sm text-muted">載入中...</div>;
+  if (!drink) return <div className="p-8 text-sm text-muted">找不到品項</div>;
 
   return (
-    <div className="max-w-3xl mx-auto px-4 py-8">
+    <div className="max-w-3xl mx-auto px-4 py-8 space-y-8">
 
       {/* 麵包屑 */}
       {shop && (
-        <div className="text-sm text-gray-400 mb-4">
-          <Link to={`/shop/${shop.id}`} className="hover:text-indigo-600">{shop.name}</Link>
+        <div className="text-sm text-muted">
+          <Link to={`/shop/${shop.id}`} className="text-accent">{shop.name}</Link>
           <span className="mx-1">›</span>
-          <span className="text-gray-700">{drink.name}</span>
+          <span>{drink.name}</span>
         </div>
       )}
 
       {/* 品項 Header */}
-      <div className="flex items-start justify-between mb-6">
+      <div className="flex items-start justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">{drink.name}</h1>
-          <p className="text-sm text-gray-400 mt-1">
+          <h1 className="text-[22px] font-bold">{drink.name}</h1>
+          <p className="mt-1 text-sm text-muted">
             {shop?.name}
             {drink.isSeasonal && (
-              <span className="ml-2 text-xs bg-orange-100 text-orange-600 px-1.5 py-0.5 rounded">季節限定</span>
+              <span className="ml-2 text-[11px] text-accent">季節限定</span>
             )}
           </p>
         </div>
         <Link
           to={`/new-review?shopId=${drink.shopId}&drinkId=${id}`}
-          className="bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-indigo-700 whitespace-nowrap"
+          className="px-4 py-2 whitespace-nowrap text-[13px] font-medium bg-text text-bg"
         >
           紀錄這杯
         </Link>
@@ -85,60 +105,67 @@ export default function DrinkPage() {
 
       {/* 評論列表 */}
       <section>
-        <h2 className="font-bold text-gray-800 text-lg mb-3">
-          大家的紀錄
-          {reviews.length > 0 && <span className="text-sm font-normal text-gray-400 ml-2">{reviews.length} 筆</span>}
-        </h2>
+        <SectionLabel>
+          大家的紀錄{reviews.length > 0 && (
+            <span className="font-normal ml-[6px] text-[13px]">{reviews.length} 筆</span>
+          )}
+        </SectionLabel>
         {reviews.length === 0 ? (
-          <div className="bg-white border border-gray-200 rounded-xl p-6 text-center">
-            <p className="text-gray-400 text-sm mb-3">還沒有人紀錄這杯，成為第一個！</p>
-            <Link
-              to={`/new-review?shopId=${drink.shopId}&drinkId=${id}`}
-              className="text-indigo-600 text-sm hover:underline"
-            >
-              紀錄這杯 →
+          <p className="text-sm text-muted">
+            還沒有人紀錄這杯，{' '}
+            <Link to={`/new-review?shopId=${drink.shopId}&drinkId=${id}`} className="text-accent">
+              成為第一個！
             </Link>
-          </div>
+          </p>
         ) : (
-          <div className="space-y-3">
-            {reviews.map(review => (
-              <div key={review.id} className="bg-white border border-gray-200 rounded-xl p-4">
-                <div className="flex items-center justify-between mb-1">
-                  <span className="font-medium text-sm text-gray-800">{review.displayName}</span>
-                  <div className="flex items-center gap-2">
+          <div>
+            {reviews.map((review, i) => (
+              <div
+                key={review.id}
+                className={`py-3 ${i < reviews.length - 1 ? 'border-b border-border-light' : ''}`}
+              >
+                <div className="flex justify-between items-baseline mb-1">
+                  <span className="text-[15px] font-semibold">{review.displayName || '訪客'}</span>
+                  <div className="flex items-center gap-3">
                     <StarDisplay rating={review.rating} />
-                    {user && review.userId === user.uid && (
-                      <>
-                        <Link
-                          to={`/new-review?reviewId=${review.id}&shopId=${review.shopId}&drinkId=${review.drinkId}`}
-                          className="text-xs text-indigo-500 hover:text-indigo-700"
-                        >
-                          編輯
-                        </Link>
-                        <button
-                          onClick={() => handleDelete(review)}
-                          className="text-xs text-red-400 hover:text-red-600"
-                        >
-                          刪除
-                        </button>
-                      </>
+                    {review.createdAt && (
+                      <span className="text-[13px] text-muted">{formatDate(review.createdAt)}</span>
                     )}
                   </div>
                 </div>
-                <p className="text-xs text-gray-400 mb-1">
-                  {[review.sugar, review.ice, review.size && `${review.size}杯`]
-                    .filter(Boolean)
-                    .join(' · ')}
-                  {review.toppings?.length > 0 && ` · ${review.toppings.join('、')}`}
-                </p>
+                {(review.sugar || review.ice || review.size || review.toppings?.length > 0) && (
+                  <p className="text-[13px] text-muted mb-1">
+                    {[review.sugar, review.ice, review.size && `${review.size}杯`]
+                      .filter(Boolean)
+                      .join(' · ')}
+                    {review.toppings?.length > 0 && ` · ${review.toppings.join('、')}`}
+                  </p>
+                )}
                 {review.comment && (
-                  <p className="text-sm text-gray-600">{review.comment}</p>
+                  <p className="text-sm text-[#666]">「{review.comment}」</p>
+                )}
+                {user && review.userId === user.uid && (
+                  <div className="flex gap-3 mt-1">
+                    <Link
+                      to={`/new-review?reviewId=${review.id}&shopId=${review.shopId}&drinkId=${review.drinkId}`}
+                      className="text-xs text-accent"
+                    >
+                      編輯
+                    </Link>
+                    <button
+                      onClick={() => handleDelete(review)}
+                      className="text-xs text-[#e57373]"
+                    >
+                      刪除
+                    </button>
+                  </div>
                 )}
               </div>
             ))}
           </div>
         )}
       </section>
+
     </div>
   );
 }

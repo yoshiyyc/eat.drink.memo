@@ -3,7 +3,7 @@ import Navbar from './Navbar';
 
 export default function Layout() {
   return (
-    <div className="min-h-screen bg-[var(--color-bg)]">
+    <div className="min-h-screen bg-bg">
       <Navbar />
       <main>
         <Outlet />

@@ -14,3 +14,53 @@ body {
   background-color: var(--color-bg);
   color: var(--color-text);
 }
+
+/* Design system utilities — used across multiple components */
+
+.section-label {
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--color-accent);
+  margin-bottom: 6px;
+}
+
+.form-input {
+  width: 100%;
+  border: 1px solid var(--color-border);
+  padding: 8px 12px;
+  font-size: 14px;
+  background: var(--color-bg);
+  color: var(--color-text);
+  outline: none;
+}
+
+.form-label {
+  display: block;
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 8px;
+}
+
+/* Toggle button used in RadioGroup / CheckboxGroup / SuggestPage type selector */
+.option-btn {
+  padding: 6px 14px;
+  font-size: 14px;
+  border: 1px solid var(--color-border);
+  background: transparent;
+  color: var(--color-text);
+  cursor: pointer;
+}
+
+.option-btn.active {
+  border-color: var(--color-text);
+  background: var(--color-text);
+  color: var(--color-bg);
+}
+
+.option-btn.disabled {
+  border-color: var(--color-border-light);
+  color: var(--color-muted);
+  cursor: not-allowed;
+}

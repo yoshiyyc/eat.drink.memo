@@ -1,4 +1,3 @@
-// src/components/WelcomeModal.jsx
 import { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -8,7 +7,7 @@ export default function WelcomeModal({ onClose }) {
   const [loggingIn, setLoggingIn] = useState(false);
 
   function handleClose() {
-    if (!guestName) setGuest('匿名'); // 首次進站才設預設值，避免覆蓋已有暱稱
+    if (!guestName) setGuest('匿名');
     onClose?.();
   }
 
@@ -29,12 +28,12 @@ export default function WelcomeModal({ onClose }) {
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 px-4">
-      <div className="bg-white rounded-2xl p-6 w-full max-w-sm shadow-xl">
+      <div className="bg-bg border border-border w-full max-w-sm p-6">
         <div className="flex items-center justify-between mb-5">
-          <h2 className="text-lg font-bold text-gray-900">歡迎使用 eat.drink.memo</h2>
+          <h2 className="text-[18px] font-bold">歡迎使用 eat.drink.memo</h2>
           <button
             onClick={handleClose}
-            className="text-gray-400 hover:text-gray-600 text-2xl leading-none"
+            className="text-[24px] leading-none text-muted hover:text-text"
             aria-label="關閉"
           >
             ×
@@ -44,7 +43,7 @@ export default function WelcomeModal({ onClose }) {
         <button
           onClick={handleGoogleLogin}
           disabled={loggingIn}
-          className="w-full flex items-center justify-center gap-2 border border-gray-300 rounded-lg px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 transition-colors"
+          className="w-full flex items-center justify-center gap-2 border border-border px-4 py-2.5 text-sm font-medium text-muted hover:bg-border-light disabled:opacity-50"
         >
           <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true">
             <path fill="#4285F4" d="M16.51 8H8.98v3h4.3c-.18 1-.74 1.48-1.6 2.04v2.01h2.6a7.8 7.8 0 0 0 2.38-5.88c0-.57-.05-.66-.15-1.18z"/>
@@ -56,22 +55,22 @@ export default function WelcomeModal({ onClose }) {
         </button>
 
         <div className="flex items-center gap-3 my-4">
-          <div className="flex-1 h-px bg-gray-200" />
-          <span className="text-xs text-gray-400">或</span>
-          <div className="flex-1 h-px bg-gray-200" />
+          <div className="flex-1 h-px bg-border" />
+          <span className="text-xs text-muted">或</span>
+          <div className="flex-1 h-px bg-border" />
         </div>
 
         <form onSubmit={handleGuestSubmit} className="space-y-3">
-          <p className="text-sm text-gray-600">以訪客繼續</p>
+          <p className="text-sm text-muted">以訪客繼續</p>
           <input
             value={nickname}
             onChange={e => setNickname(e.target.value)}
             maxLength={20}
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-indigo-400"
+            className="form-input"
           />
           <button
             type="submit"
-            className="w-full bg-indigo-600 text-white py-2 rounded-lg text-sm font-medium hover:bg-indigo-700 transition-colors"
+            className="w-full py-2 text-sm font-medium bg-text text-bg"
           >
             繼續
           </button>

@@ -39,24 +39,15 @@ export default function Navbar() {
         <WelcomeModal onClose={() => setShowWelcomeModal(false)} />
       )}
 
-      <nav
-        className="px-4 py-3"
-        style={{ borderBottom: '1.5px solid var(--color-text)', background: 'var(--color-bg)' }}
-      >
+      <nav className="px-4 py-3 bg-bg border-b-[1.5px] border-text">
         <div className="max-w-5xl mx-auto flex items-center justify-between">
-          <Link
-            to="/"
-            className="tracking-tight"
-            style={{ fontSize: '16px', fontWeight: 700, color: 'var(--color-text)' }}
-          >
+          <Link to="/" className="text-base font-bold tracking-tight">
             eat.drink.memo
           </Link>
 
           <div className="flex items-center gap-3" ref={dropdownRef}>
             {(isLoggedIn || isGuest) && displayName && (
-              <span className="hidden sm:block" style={{ fontSize: '14px', color: 'var(--color-muted)' }}>
-                {displayName}
-              </span>
+              <span className="hidden sm:block text-sm text-muted">{displayName}</span>
             )}
 
             <div className="relative">
@@ -68,11 +59,8 @@ export default function Navbar() {
                 {avatarSrc ? (
                   <img src={avatarSrc} alt="avatar" className="w-full h-full object-cover" />
                 ) : (
-                  <div
-                    className="w-full h-full flex items-center justify-center"
-                    style={{ background: 'var(--color-border)' }}
-                  >
-                    <svg className="w-4 h-4" style={{ color: 'var(--color-muted)' }} fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+                  <div className="w-full h-full flex items-center justify-center bg-border">
+                    <svg className="w-4 h-4 text-muted" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
                       <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
                     </svg>
                   </div>
