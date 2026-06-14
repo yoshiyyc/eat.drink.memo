@@ -53,18 +53,11 @@ export default function Navbar() {
           </Link>
 
           <div className="flex items-center gap-3" ref={dropdownRef}>
-            <Link
-              to="/new-review"
-              className="px-4 py-2"
-              style={{
-                fontSize: '14px',
-                background: 'var(--color-text)',
-                color: 'var(--color-bg)',
-                fontWeight: 500,
-              }}
-            >
-              + 記錄這杯
-            </Link>
+            {(isLoggedIn || isGuest) && displayName && (
+              <span className="hidden sm:block" style={{ fontSize: '14px', color: 'var(--color-muted)' }}>
+                {displayName}
+              </span>
+            )}
 
             <div className="relative">
               <button

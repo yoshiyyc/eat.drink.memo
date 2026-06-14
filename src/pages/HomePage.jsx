@@ -66,6 +66,14 @@ export default function HomePage() {
   return (
     <div className="max-w-5xl mx-auto px-4 py-8 space-y-10">
 
+      {/* Action Strip */}
+      <div className="flex items-baseline justify-between pb-3" style={{ borderBottom: '1px solid var(--color-border)' }}>
+        <span style={{ fontSize: '14px', color: 'var(--color-muted)' }}>今天喝了什麼？</span>
+        <Link to="/new-review" style={{ fontSize: '14px', color: 'var(--color-accent)', fontWeight: 500 }}>
+          + 紀錄這杯 →
+        </Link>
+      </div>
+
       {/* Shop Grid */}
       <section>
         <SectionLabel>店家</SectionLabel>
