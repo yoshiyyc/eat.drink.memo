@@ -1,9 +1,10 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
+import ProfileSetupModal from '../ProfileSetupModal';
 
 export default function Navbar() {
-  const { isLoggedIn, isGuest, displayName, signInWithGoogle, signOut, setGuest } = useAuth();
+  const { isLoggedIn, isGuest, displayName, signInWithGoogle, signOut, setGuest, needsProfileSetup } = useAuth();
   const [showGuestInput, setShowGuestInput] = useState(false);
   const [nicknameInput, setNicknameInput] = useState('');
 
@@ -18,7 +19,10 @@ export default function Navbar() {
   }
 
   return (
-    <nav className="bg-white border-b border-gray-200 px-4 py-3">
+    <>
+      {needsProfileSetup && <ProfileSetupModal />}
+
+      <nav className="bg-white border-b border-gray-200 px-4 py-3">
       <div className="max-w-5xl mx-auto flex items-center justify-between">
         <Link to="/" className="font-bold text-lg tracking-tight text-gray-900">
           eat.drink.memo
@@ -85,5 +89,6 @@ export default function Navbar() {
         </div>
       )}
     </nav>
+    </>
   );
 }
