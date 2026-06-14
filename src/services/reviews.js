@@ -1,6 +1,7 @@
 import {
   collection,
   doc,
+  getDoc,
   getDocs,
   query,
   where,
@@ -8,6 +9,8 @@ import {
   limit,
   runTransaction,
   serverTimestamp,
+  updateDoc,
+  deleteDoc,
 } from 'firebase/firestore';
 import { db } from '../firebase';
 
@@ -76,4 +79,28 @@ export async function getLatestReviews(limitCount = 5) {
   );
   const snapshot = await getDocs(q);
   return snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+}
+
+export async function getReviewById(reviewId) {
+  const snap = await getDoc(doc(db, 'reviews', reviewId));
+  if (!snap.exists()) return null;
+  return { id: snap.id, ...snap.data() };
+}
+
+export async function updateReview(reviewId, updates) {
+  await updateDoc(doc(db, 'reviews', reviewId), updates);
+}
+
+export async function deleteReview(reviewId, shopId) {
+  const shopRef = doc(db, 'shops', shopId);
+  const reviewRef = doc(db, 'reviews', reviewId);
+
+  await runTransaction(db, async (transaction) => {
+    const shopSnap = await transaction.get(shopRef);
+    if (shopSnap.exists()) {
+      const currentCount = shopSnap.data().reviewCount ?? 0;
+      transaction.update(shopRef, { reviewCount: Math.max(0, currentCount - 1) });
+    }
+    transaction.delete(reviewRef);
+  });
 }
