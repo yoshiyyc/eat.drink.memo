@@ -3,12 +3,12 @@ import { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 
 export default function WelcomeModal({ onClose }) {
-  const { signInWithGoogle, setGuest } = useAuth();
-  const [nickname, setNickname] = useState('匿名');
+  const { signInWithGoogle, setGuest, guestName } = useAuth();
+  const [nickname, setNickname] = useState(guestName || '匿名');
   const [loggingIn, setLoggingIn] = useState(false);
 
   function handleClose() {
-    setGuest('匿名');
+    if (!guestName) setGuest('匿名'); // 首次進站才設預設值，避免覆蓋已有暱稱
     onClose?.();
   }
 

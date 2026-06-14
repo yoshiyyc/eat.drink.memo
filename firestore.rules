@@ -2,11 +2,10 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // Shops: read-only for everyone; only allow updating reviewCount via authenticated users
+    // Shops: read-only for everyone; allow reviewCount updates from anyone (guests included)
     match /shops/{shopId} {
       allow read: if true;
-      allow update: if request.auth != null
-        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['reviewCount']);
+      allow update: if request.resource.data.diff(resource.data).affectedKeys().hasOnly(['reviewCount']);
       allow create, delete: if false;
     }
 
@@ -16,11 +15,10 @@ service cloud.firestore {
       allow write: if false;
     }
 
-    // Reviews: anyone can read; authenticated users can create;
-    // only owner can update or delete
+    // Reviews: anyone can read or create (guests allowed); only owner can update or delete
     match /reviews/{reviewId} {
       allow read: if true;
-      allow create: if request.auth != null;
+      allow create: if true;
       allow update, delete: if request.auth != null
         && request.auth.uid == resource.data.userId;
     }

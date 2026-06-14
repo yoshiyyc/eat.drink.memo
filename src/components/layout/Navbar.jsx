@@ -7,7 +7,7 @@ import WelcomeModal from '../WelcomeModal';
 import UserDropdown from '../UserDropdown';
 
 export default function Navbar() {
-  const { user, profile, isLoggedIn, needsProfileSetup, needsGuestSetup } = useAuth();
+  const { user, profile, isLoggedIn, isGuest, displayName, needsProfileSetup, needsGuestSetup } = useAuth();
   const [showWelcomeModal, setShowWelcomeModal] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
   const dropdownRef = useRef(null);
@@ -46,7 +46,11 @@ export default function Navbar() {
             eat.drink.memo
           </Link>
 
-          <div className="relative" ref={dropdownRef}>
+          <div className="flex items-center gap-2" ref={dropdownRef}>
+            {(isLoggedIn || isGuest) && displayName && (
+              <span className="hidden sm:block text-sm text-gray-600">{displayName}</span>
+            )}
+            <div className="relative">
             <button
               onClick={handleAvatarClick}
               className="w-9 h-9 rounded-full overflow-hidden focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:ring-offset-1"
@@ -66,6 +70,7 @@ export default function Navbar() {
             {isLoggedIn && showDropdown && (
               <UserDropdown onClose={() => setShowDropdown(false)} />
             )}
+            </div>
           </div>
         </div>
       </nav>

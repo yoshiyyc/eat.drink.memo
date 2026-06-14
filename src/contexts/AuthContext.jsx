@@ -66,7 +66,7 @@ export function AuthProvider({ children }) {
     guestName,
     isLoggedIn: !!user,
     isGuest: !user && !!guestName,
-    displayName: profile?.displayName ?? guestName ?? user?.email ?? null,
+    displayName: profile?.displayName ?? user?.email?.split('@')[0] ?? guestName ?? null,
     needsProfileSetup: !!user && !profile,
     needsGuestSetup: !user && !guestName,
     signInWithGoogle,
