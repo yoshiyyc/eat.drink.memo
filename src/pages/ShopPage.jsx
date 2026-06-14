@@ -22,14 +22,16 @@ export default function ShopPage() {
 
   useEffect(() => {
     async function load() {
-      const [shopData, drinksData, reviewsData] = await Promise.all([
-        getShopById(id),
-        getDrinksByShop(id),
-        getReviewsByShop(id, 10),
-      ]);
+      const shopData = await getShopById(id);
       setShop(shopData);
-      setDrinks(drinksData);
-      setReviews(reviewsData);
+      if (shopData) {
+        const [drinksData, reviewsData] = await Promise.all([
+          getDrinksByShop(id).catch(() => []),
+          getReviewsByShop(id, 10).catch(() => []),
+        ]);
+        setDrinks(drinksData);
+        setReviews(reviewsData);
+      }
       setLoading(false);
     }
     load().catch(() => setLoading(false));
