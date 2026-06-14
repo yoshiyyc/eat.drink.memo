@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { getShops } from '../services/shops';
-import { getLatestReviews } from '../services/reviews';
+import { getLatestReviews, getWeeklyTrending } from '../services/reviews';
 
 function StarDisplay({ rating }) {
   if (!rating) return null;
@@ -11,16 +11,20 @@ function StarDisplay({ rating }) {
 export default function HomePage() {
   const [shops, setShops] = useState([]);
   const [reviews, setReviews] = useState([]);
+  const [trending, setTrending] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    Promise.all([getShops(), getLatestReviews(5)])
-      .then(([shopsData, reviewsData]) => {
-        setShops(shopsData);
-        setReviews(reviewsData);
-        setLoading(false);
-      })
-      .catch(() => setLoading(false));
+    Promise.all([
+      getShops(),
+      getLatestReviews(5),
+      getWeeklyTrending(5).catch(() => []),
+    ]).then(([shopsData, reviewsData, trendingData]) => {
+      setShops(shopsData);
+      setReviews(reviewsData);
+      setTrending(trendingData);
+      setLoading(false);
+    }).catch(() => setLoading(false));
   }, []);
 
   const topShops = shops.slice(0, 5);
@@ -60,7 +64,7 @@ export default function HomePage() {
         <div className="flex justify-between items-center mb-4">
           <h2 className="font-bold text-gray-800 text-lg">店家</h2>
           {hasMore && (
-            <span className="text-indigo-600 text-sm cursor-pointer">看全部 →</span>
+            <Link to="/shops" className="text-indigo-600 text-sm hover:underline">看全部 →</Link>
           )}
         </div>
         {loading ? (
@@ -88,22 +92,47 @@ export default function HomePage() {
               </Link>
             ))}
             {hasMore && (
-              <div className="bg-gray-50 border border-dashed border-gray-300 rounded-xl p-4 text-center text-gray-400 text-sm cursor-pointer hover:bg-gray-100">
+              <Link
+                to="/shops"
+                className="bg-gray-50 border border-dashed border-gray-300 rounded-xl p-4 text-center text-gray-400 text-sm hover:bg-gray-100 hover:text-indigo-500 transition-colors flex items-center justify-center"
+              >
                 +更多
-              </div>
+              </Link>
             )}
           </div>
         )}
       </section>
 
-      {/* Weekly Trending placeholder */}
+      {/* Weekly Trending */}
       <section className="mb-8">
         <h2 className="font-bold text-gray-800 text-lg mb-4">🔥 這週大家在喝</h2>
-        <div className="bg-white border border-gray-200 rounded-xl">
-          <p className="p-6 text-gray-400 text-sm text-center">
-            還沒有紀錄，成為第一個留下心得的人！
-          </p>
-        </div>
+        {loading ? (
+          <div className="space-y-2">
+            {[...Array(3)].map((_, i) => (
+              <div key={i} className="bg-gray-200 rounded-xl h-12 animate-pulse" />
+            ))}
+          </div>
+        ) : trending.length === 0 ? (
+          <div className="bg-white border border-gray-200 rounded-xl p-6 text-center">
+            <p className="text-gray-400 text-sm mb-3">這週還沒有紀錄，快來第一個！</p>
+            <Link to="/new-review" className="text-indigo-600 text-sm hover:underline">
+              立即記錄 →
+            </Link>
+          </div>
+        ) : (
+          <div className="bg-white border border-gray-200 rounded-xl divide-y divide-gray-100">
+            {trending.map((item, i) => (
+              <div key={i} className="flex items-center gap-3 px-4 py-3">
+                <span className="text-sm font-bold text-gray-400 w-5 text-right">#{i + 1}</span>
+                <div className="flex-1 min-w-0">
+                  <span className="text-xs text-gray-400">{item.shopName}</span>
+                  <p className="text-sm font-medium text-gray-800 truncate">{item.drinkName}</p>
+                </div>
+                <span className="text-sm text-indigo-600 font-medium whitespace-nowrap">×{item.count}</span>
+              </div>
+            ))}
+          </div>
+        )}
       </section>
 
       {/* Latest Reviews */}
