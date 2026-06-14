@@ -59,7 +59,7 @@ export default function ShopPage() {
             to={`/new-review?shopId=${id}`}
             className="bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-indigo-700"
           >
-            記錄這家店
+            紀錄品項
           </Link>
           <Link
             to={`/suggest?shopId=${id}`}
@@ -103,7 +103,7 @@ export default function ShopPage() {
               to={`/new-review?shopId=${id}`}
               className="text-indigo-600 text-sm hover:underline"
             >
-              記錄這家店 →
+              紀錄品項 →
             </Link>
           </div>
         ) : (
