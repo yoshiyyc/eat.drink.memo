@@ -7,7 +7,7 @@ function SectionLabel({ children }) {
   return (
     <div className="mb-3">
       <p style={{
-        fontSize: '12px',
+        fontSize: '13px',
         fontWeight: 700,
         letterSpacing: '1.5px',
         textTransform: 'uppercase',
@@ -24,7 +24,7 @@ function SectionLabel({ children }) {
 function StarDisplay({ rating }) {
   if (!rating) return null;
   return (
-    <span className="text-xs">
+    <span className="text-sm">
       <span style={{ color: 'var(--color-accent)' }}>{'★'.repeat(rating)}</span>
       <span style={{ color: 'var(--color-faded)' }}>{'☆'.repeat(5 - rating)}</span>
     </span>
@@ -76,7 +76,7 @@ export default function HomePage() {
             ))}
           </div>
         ) : shops.length === 0 ? (
-          <p style={{ fontSize: '13px', color: 'var(--color-muted)' }}>尚未有店家資料</p>
+          <p style={{ fontSize: '14px', color: 'var(--color-muted)' }}>尚未有店家資料</p>
         ) : (
           <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2">
             {topShops.map(shop => (
@@ -91,7 +91,7 @@ export default function HomePage() {
                 ) : (
                   <div className="w-8 h-8 mx-auto mb-2" style={{ background: 'var(--color-border-light)' }} />
                 )}
-                <p style={{ fontSize: '12px', color: 'var(--color-text)' }}>{shop.name}</p>
+                <p style={{ fontSize: '14px', color: 'var(--color-text)' }}>{shop.name}</p>
               </Link>
             ))}
             {hasMore && (
@@ -101,7 +101,7 @@ export default function HomePage() {
                 style={{
                   border: '1px dashed var(--color-border)',
                   color: 'var(--color-accent)',
-                  fontSize: '12px',
+                  fontSize: '14px',
                 }}
               >
                 看全部 →
@@ -121,7 +121,7 @@ export default function HomePage() {
             ))}
           </div>
         ) : trending.length === 0 ? (
-          <p style={{ fontSize: '13px', color: 'var(--color-muted)' }}>
+          <p style={{ fontSize: '14px', color: 'var(--color-muted)' }}>
             這週還沒有紀錄，{' '}
             <Link to="/new-review" style={{ color: 'var(--color-accent)' }}>快來第一個！</Link>
           </p>
@@ -135,7 +135,7 @@ export default function HomePage() {
               >
                 <div className="flex items-baseline gap-2 min-w-0">
                   <span style={{
-                    fontSize: '11px',
+                    fontSize: '13px',
                     color: i === 0 ? 'var(--color-accent)' : 'var(--color-border)',
                     minWidth: '18px',
                     textAlign: 'right',
@@ -144,7 +144,7 @@ export default function HomePage() {
                     {String(i + 1).padStart(2, '0')}
                   </span>
                   <span style={{
-                    fontSize: '11px',
+                    fontSize: '13px',
                     color: i === 0 ? 'var(--color-accent)' : 'var(--color-border)',
                     flexShrink: 0,
                   }}>
@@ -154,7 +154,7 @@ export default function HomePage() {
                   <span
                     className="truncate"
                     style={{
-                      fontSize: '13px',
+                      fontSize: '15px',
                       fontWeight: 600,
                       color: i === 0 ? 'var(--color-text)' : 'var(--color-muted)',
                     }}
@@ -165,7 +165,7 @@ export default function HomePage() {
                 <span
                   className="whitespace-nowrap ml-4"
                   style={{
-                    fontSize: '12px',
+                    fontSize: '14px',
                     fontWeight: i === 0 ? 700 : 400,
                     color: i === 0 ? 'var(--color-accent)' : 'var(--color-border)',
                     flexShrink: 0,
@@ -189,7 +189,7 @@ export default function HomePage() {
             ))}
           </div>
         ) : reviews.length === 0 ? (
-          <p style={{ fontSize: '13px', color: 'var(--color-muted)' }}>
+          <p style={{ fontSize: '14px', color: 'var(--color-muted)' }}>
             還沒有紀錄，{' '}
             <Link to="/new-review" style={{ color: 'var(--color-accent)' }}>成為第一個留下心得的人！</Link>
           </p>
@@ -203,18 +203,18 @@ export default function HomePage() {
                 style={{ borderBottom: i < reviews.length - 1 ? '1px solid var(--color-border-light)' : 'none' }}
               >
                 <div className="flex justify-between items-baseline mb-1">
-                  <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--color-text)' }}>
+                  <span style={{ fontSize: '15px', fontWeight: 600, color: 'var(--color-text)' }}>
                     {review.displayName || '訪客'}
                   </span>
-                  <span style={{ fontSize: '11px', color: 'var(--color-muted)' }}>
+                  <span style={{ fontSize: '13px', color: 'var(--color-muted)' }}>
                     {formatDate(review.createdAt)}
                   </span>
                 </div>
                 <div className="flex justify-between items-baseline mb-1">
                   <span className="min-w-0 truncate mr-2">
-                    <span style={{ fontSize: '12px', color: 'var(--color-accent)' }}>{review.shopName}</span>
+                    <span style={{ fontSize: '14px', color: 'var(--color-accent)' }}>{review.shopName}</span>
                     <span style={{ color: 'var(--color-border)', margin: '0 4px' }}>·</span>
-                    <span style={{ fontSize: '14px', fontWeight: 600, color: 'var(--color-text)' }}>{review.drinkName}</span>
+                    <span style={{ fontSize: '16px', fontWeight: 600, color: 'var(--color-text)' }}>{review.drinkName}</span>
                   </span>
                   {review.rating && (
                     <span className="whitespace-nowrap ml-2 flex-shrink-0">
@@ -223,7 +223,7 @@ export default function HomePage() {
                   )}
                 </div>
                 {review.comment && (
-                  <p style={{ fontSize: '12px', color: '#666' }}>「{review.comment}」</p>
+                  <p style={{ fontSize: '14px', color: '#666' }}>「{review.comment}」</p>
                 )}
               </Link>
             ))}

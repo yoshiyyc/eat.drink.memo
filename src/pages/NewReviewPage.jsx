@@ -1,4 +1,3 @@
-// src/pages/NewReviewPage.jsx
 import { useEffect, useState } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { getShops } from '../services/shops';
@@ -11,20 +10,29 @@ const SIZES = ['中', '大'];
 function RadioGroup({ label, options, value, onChange, disabled }) {
   return (
     <div>
-      <p className="text-sm font-medium text-gray-700 mb-2">{label}</p>
+      <p style={{ fontSize: '14px', fontWeight: 500, color: 'var(--color-text)', marginBottom: '8px' }}>{label}</p>
       <div className="flex flex-wrap gap-2">
         {options.map(opt => (
           <button
             key={opt}
             type="button"
             onClick={() => !disabled && onChange(opt)}
-            className={`px-3 py-1.5 rounded-lg text-sm border transition-colors ${
-              value === opt
-                ? 'bg-indigo-600 text-white border-indigo-600'
+            style={{
+              padding: '6px 14px',
+              fontSize: '14px',
+              border: value === opt
+                ? '1px solid var(--color-text)'
                 : disabled
-                ? 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed'
-                : 'bg-white text-gray-600 border-gray-300 hover:border-indigo-300'
-            }`}
+                ? '1px solid var(--color-border-light)'
+                : '1px solid var(--color-border)',
+              background: value === opt ? 'var(--color-text)' : 'transparent',
+              color: value === opt
+                ? 'var(--color-bg)'
+                : disabled
+                ? 'var(--color-muted)'
+                : 'var(--color-text)',
+              cursor: disabled ? 'not-allowed' : 'pointer',
+            }}
           >
             {opt}
           </button>
@@ -40,18 +48,21 @@ function CheckboxGroup({ label, options, value, onChange }) {
   }
   return (
     <div>
-      <p className="text-sm font-medium text-gray-700 mb-2">{label}（選填）</p>
+      <p style={{ fontSize: '14px', fontWeight: 500, color: 'var(--color-text)', marginBottom: '8px' }}>{label}（選填）</p>
       <div className="flex flex-wrap gap-2">
         {options.map(opt => (
           <button
             key={opt}
             type="button"
             onClick={() => toggle(opt)}
-            className={`px-3 py-1.5 rounded-lg text-sm border transition-colors ${
-              value.includes(opt)
-                ? 'bg-indigo-600 text-white border-indigo-600'
-                : 'bg-white text-gray-600 border-gray-300 hover:border-indigo-300'
-            }`}
+            style={{
+              padding: '6px 14px',
+              fontSize: '14px',
+              border: value.includes(opt) ? '1px solid var(--color-text)' : '1px solid var(--color-border)',
+              background: value.includes(opt) ? 'var(--color-text)' : 'transparent',
+              color: value.includes(opt) ? 'var(--color-bg)' : 'var(--color-text)',
+              cursor: 'pointer',
+            }}
           >
             {opt}
           </button>
@@ -64,14 +75,15 @@ function CheckboxGroup({ label, options, value, onChange }) {
 function StarPicker({ value, onChange }) {
   return (
     <div>
-      <p className="text-sm font-medium text-gray-700 mb-2">評分（選填）</p>
+      <p style={{ fontSize: '14px', fontWeight: 500, color: 'var(--color-text)', marginBottom: '8px' }}>評分（選填）</p>
       <div className="flex gap-1">
         {[1, 2, 3, 4, 5].map(n => (
           <button
             key={n}
             type="button"
             onClick={() => onChange(value === n ? null : n)}
-            className={`text-2xl transition-colors ${n <= (value ?? 0) ? 'text-yellow-400' : 'text-gray-300'}`}
+            className="text-2xl transition-colors"
+            style={{ color: n <= (value ?? 0) ? 'var(--color-accent)' : 'var(--color-faded)' }}
           >
             ★
           </button>
@@ -206,29 +218,39 @@ export default function NewReviewPage() {
     setSubmitting(false);
   }
 
-  if (loadingReview) return <div className="p-8 text-gray-400 text-sm">載入中...</div>;
-  if (error && !form.shopId) return <div className="p-8 text-red-500 text-sm">{error}</div>;
+  const inputStyle = {
+    width: '100%',
+    border: '1px solid var(--color-border)',
+    padding: '8px 12px',
+    fontSize: '14px',
+    background: 'var(--color-bg)',
+    color: 'var(--color-text)',
+    outline: 'none',
+  };
+
+  if (loadingReview) return <div className="p-8" style={{ fontSize: '14px', color: 'var(--color-muted)' }}>載入中...</div>;
+  if (error && !form.shopId) return <div className="p-8" style={{ fontSize: '14px', color: '#e57373' }}>{error}</div>;
 
   return (
     <div className="max-w-xl mx-auto px-4 py-8">
-      <h1 className="text-xl font-bold text-gray-900 mb-6">
+      <h1 className="font-bold mb-6" style={{ fontSize: '20px', color: 'var(--color-text)' }}>
         {isEditMode ? '編輯紀錄' : '新增紀錄'}
       </h1>
 
       <form onSubmit={handleSubmit} className="space-y-6">
 
-        {/* 店家（編輯模式鎖定） */}
+        {/* 店家 */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">店家</label>
+          <label className="block font-medium mb-2" style={{ fontSize: '14px', color: 'var(--color-text)' }}>店家</label>
           {isEditMode ? (
-            <p className="text-sm text-gray-800 bg-gray-50 border border-gray-200 rounded-lg px-3 py-2">
+            <p style={{ ...inputStyle, color: 'var(--color-muted)' }}>
               {shops.find(s => s.id === form.shopId)?.name ?? '載入中...'}
             </p>
           ) : (
             <select
               value={form.shopId}
               onChange={e => setForm(f => ({ ...f, shopId: e.target.value, drinkId: '' }))}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-indigo-400"
+              style={inputStyle}
             >
               <option value="">請選擇店家</option>
               {shops.map(shop => (
@@ -238,19 +260,19 @@ export default function NewReviewPage() {
           )}
         </div>
 
-        {/* 飲料（編輯模式鎖定） */}
+        {/* 飲料 */}
         {selectedShop && (
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">飲料</label>
+            <label className="block font-medium mb-2" style={{ fontSize: '14px', color: 'var(--color-text)' }}>飲料</label>
             {isEditMode ? (
-              <p className="text-sm text-gray-800 bg-gray-50 border border-gray-200 rounded-lg px-3 py-2">
+              <p style={{ ...inputStyle, color: 'var(--color-muted)' }}>
                 {drinks.find(d => d.id === form.drinkId)?.name ?? '載入中...'}
               </p>
             ) : (
               <select
                 value={form.drinkId}
                 onChange={e => setForm(f => ({ ...f, drinkId: e.target.value }))}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-indigo-400"
+                style={inputStyle}
               >
                 <option value="">請選擇飲料</option>
                 {drinks.map(drink => (
@@ -298,25 +320,31 @@ export default function NewReviewPage() {
         {/* 評分 & 留言 */}
         <StarPicker value={form.rating} onChange={v => setForm(f => ({ ...f, rating: v }))} />
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">留言（選填）</label>
+          <label className="block font-medium mb-2" style={{ fontSize: '14px', color: 'var(--color-text)' }}>留言（選填）</label>
           <textarea
             value={form.comment}
             onChange={e => setForm(f => ({ ...f, comment: e.target.value }))}
             placeholder="這杯怎麼樣呢？"
             rows={3}
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-indigo-400 resize-none"
+            style={{ ...inputStyle, resize: 'none' }}
           />
         </div>
 
-        {error && <p className="text-red-500 text-sm">{error}</p>}
+        {error && <p style={{ fontSize: '14px', color: '#e57373' }}>{error}</p>}
 
         <button
           type="submit"
           disabled={submitting}
-          className="w-full bg-indigo-600 text-white py-2.5 rounded-lg font-medium hover:bg-indigo-700 disabled:opacity-50 transition-colors"
+          className="w-full py-2.5 font-medium disabled:opacity-50"
+          style={{
+            background: 'var(--color-text)',
+            color: 'var(--color-bg)',
+            fontSize: '15px',
+          }}
         >
           {submitting ? '送出中...' : isEditMode ? '儲存變更' : '送出紀錄'}
         </button>
+
       </form>
     </div>
   );
