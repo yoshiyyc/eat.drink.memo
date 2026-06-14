@@ -9,7 +9,7 @@ function SectionLabel({ children }) {
   return (
     <div className="mb-3">
       <p style={{
-        fontSize: '13px',
+        fontSize: '15px',
         fontWeight: 700,
         letterSpacing: '1.5px',
         textTransform: 'uppercase',

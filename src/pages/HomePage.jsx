@@ -7,7 +7,7 @@ function SectionLabel({ children }) {
   return (
     <div className="mb-3">
       <p style={{
-        fontSize: '13px',
+        fontSize: '15px',
         fontWeight: 700,
         letterSpacing: '1.5px',
         textTransform: 'uppercase',
@@ -68,11 +68,13 @@ export default function HomePage() {
 
       {/* Action Banner */}
       <div className="py-6" style={{ borderBottom: '1px solid var(--color-border)' }}>
-        <p className="mb-4" style={{ fontSize: '16px', color: 'var(--color-muted)' }}>今天喝了什麼？</p>
+        <h2 className="font-bold mb-5" style={{ fontSize: '28px', color: 'var(--color-text)', lineHeight: 1.2 }}>
+          今天喝了什麼？
+        </h2>
         <Link
           to="/new-review"
           className="inline-block px-8 py-3 font-medium"
-          style={{ fontSize: '16px', background: 'var(--color-text)', color: 'var(--color-bg)' }}
+          style={{ fontSize: '15px', background: 'var(--color-text)', color: 'var(--color-bg)' }}
         >
           + 紀錄這杯
         </Link>
