@@ -80,7 +80,7 @@ export default function ShopPage() {
             {drinks.map(drink => (
               <Link
                 key={drink.id}
-                to={`/new-review?shopId=${id}&drinkId=${drink.id}`}
+                to={`/drink/${drink.id}`}
                 className="bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-700 hover:border-indigo-300 hover:text-indigo-700 transition-colors flex items-center justify-between"
               >
                 <span>{drink.name}</span>

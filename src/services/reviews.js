@@ -36,22 +36,36 @@ export async function getReviewsByShop(shopId, limitCount = 20) {
   const q = query(
     collection(db, 'reviews'),
     where('shopId', '==', shopId),
-    orderBy('createdAt', 'desc'),
     limit(limitCount)
   );
   const snapshot = await getDocs(q);
-  return snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+  return snapshot.docs
+    .map(d => ({ id: d.id, ...d.data() }))
+    .sort((a, b) => (b.createdAt?.seconds ?? 0) - (a.createdAt?.seconds ?? 0));
+}
+
+export async function getReviewsByDrink(drinkId, limitCount = 20) {
+  const q = query(
+    collection(db, 'reviews'),
+    where('drinkId', '==', drinkId),
+    limit(limitCount)
+  );
+  const snapshot = await getDocs(q);
+  return snapshot.docs
+    .map(d => ({ id: d.id, ...d.data() }))
+    .sort((a, b) => (b.createdAt?.seconds ?? 0) - (a.createdAt?.seconds ?? 0));
 }
 
 export async function getReviewsByUser(userId, limitCount = 50) {
   const q = query(
     collection(db, 'reviews'),
     where('userId', '==', userId),
-    orderBy('createdAt', 'desc'),
     limit(limitCount)
   );
   const snapshot = await getDocs(q);
-  return snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+  return snapshot.docs
+    .map(d => ({ id: d.id, ...d.data() }))
+    .sort((a, b) => (b.createdAt?.seconds ?? 0) - (a.createdAt?.seconds ?? 0));
 }
 
 export async function getLatestReviews(limitCount = 5) {
