@@ -47,7 +47,7 @@ export default function Navbar() {
           <Link
             to="/"
             className="tracking-tight"
-            style={{ fontSize: '14px', fontWeight: 700, color: 'var(--color-text)' }}
+            style={{ fontSize: '16px', fontWeight: 700, color: 'var(--color-text)' }}
           >
             eat.drink.memo
           </Link>
@@ -55,9 +55,9 @@ export default function Navbar() {
           <div className="flex items-center gap-3" ref={dropdownRef}>
             <Link
               to="/new-review"
-              className="px-3 py-1.5"
+              className="px-4 py-2"
               style={{
-                fontSize: '12px',
+                fontSize: '14px',
                 background: 'var(--color-text)',
                 color: 'var(--color-bg)',
                 fontWeight: 500,

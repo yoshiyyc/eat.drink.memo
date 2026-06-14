@@ -113,7 +113,7 @@ export default function HomePage() {
 
       {/* Weekly Trending */}
       <section>
-        <SectionLabel>本週排行</SectionLabel>
+        <SectionLabel>本週熱門</SectionLabel>
         {loading ? (
           <div className="space-y-2">
             {[...Array(3)].map((_, i) => (
@@ -136,7 +136,7 @@ export default function HomePage() {
                 <div className="flex items-baseline gap-2 min-w-0">
                   <span style={{
                     fontSize: '13px',
-                    color: i === 0 ? 'var(--color-accent)' : 'var(--color-border)',
+                    color: i === 0 ? 'var(--color-accent)' : 'var(--color-text)',
                     minWidth: '18px',
                     textAlign: 'right',
                     flexShrink: 0,
@@ -145,7 +145,7 @@ export default function HomePage() {
                   </span>
                   <span style={{
                     fontSize: '13px',
-                    color: i === 0 ? 'var(--color-accent)' : 'var(--color-border)',
+                    color: i === 0 ? 'var(--color-accent)' : 'var(--color-text)',
                     flexShrink: 0,
                   }}>
                     {item.shopName}
@@ -156,7 +156,7 @@ export default function HomePage() {
                     style={{
                       fontSize: '15px',
                       fontWeight: 600,
-                      color: i === 0 ? 'var(--color-text)' : 'var(--color-muted)',
+                      color: 'var(--color-text)',
                     }}
                   >
                     {item.drinkName}
@@ -167,7 +167,7 @@ export default function HomePage() {
                   style={{
                     fontSize: '14px',
                     fontWeight: i === 0 ? 700 : 400,
-                    color: i === 0 ? 'var(--color-accent)' : 'var(--color-border)',
+                    color: i === 0 ? 'var(--color-accent)' : 'var(--color-muted)',
                     flexShrink: 0,
                   }}
                 >
