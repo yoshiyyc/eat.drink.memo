@@ -7,6 +7,8 @@ export default function ProfileSetupModal() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
 
+  if (!user) return null;
+
   async function handleSubmit(e) {
     e.preventDefault();
     const trimmed = nickname.trim();
@@ -33,7 +35,7 @@ export default function ProfileSetupModal() {
         <form onSubmit={handleSubmit} className="space-y-4">
           <input
             value={nickname}
-            onChange={e => setNickname(e.target.value)}
+            onChange={e => { setNickname(e.target.value); if (error) setError(''); }}
             placeholder="輸入暱稱..."
             maxLength={20}
             autoFocus
