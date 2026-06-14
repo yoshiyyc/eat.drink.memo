@@ -136,7 +136,7 @@ export default function HomePage() {
                 <div className="flex items-baseline gap-2 min-w-0">
                   <span style={{
                     fontSize: '13px',
-                    color: i === 0 ? 'var(--color-accent)' : 'var(--color-text)',
+                    color: 'var(--color-accent)',
                     minWidth: '18px',
                     textAlign: 'right',
                     flexShrink: 0,
@@ -145,7 +145,7 @@ export default function HomePage() {
                   </span>
                   <span style={{
                     fontSize: '13px',
-                    color: i === 0 ? 'var(--color-accent)' : 'var(--color-text)',
+                    color: 'var(--color-accent)',
                     flexShrink: 0,
                   }}>
                     {item.shopName}
