@@ -37,6 +37,7 @@ export function AuthProvider({ children }) {
 
   async function signInWithGoogle() {
     const provider = new GoogleAuthProvider();
+    provider.setCustomParameters({ prompt: 'select_account' });
     const result = await signInWithPopup(auth, provider);
     const snap = await getDoc(doc(db, 'users', result.user.uid));
     return { user: result.user, isNewUser: !snap.exists() };

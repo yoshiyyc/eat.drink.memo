@@ -3,7 +3,7 @@ import { collection, getDocs, addDoc, query, where } from 'firebase/firestore';
 import { db } from '../firebase';
 import { useAuth } from '../contexts/AuthContext';
 
-const ADMIN_EMAIL = 'yoshi.wind.wing@gmail.com';
+const ADMIN_EMAIL = 'yoshi.wind.dev@gmail.com';
 
 const DRINKS_SEED = [
   { shopName: '五十嵐', drinks: ['四季春拿鐵', '四季春紅茶', '波霸奶茶', '仙草奶茶', '多多綠'] },
