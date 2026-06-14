@@ -10,7 +10,6 @@ import {
   runTransaction,
   serverTimestamp,
   updateDoc,
-  deleteDoc,
 } from 'firebase/firestore';
 import { db } from '../firebase';
 

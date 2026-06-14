@@ -113,21 +113,31 @@ export default function NewReviewPage() {
 
   useEffect(() => {
     if (!isEditMode) return;
-    getReviewById(reviewId).then(review => {
-      if (review) {
-        setForm({
-          shopId: review.shopId,
-          drinkId: review.drinkId,
-          sugar: review.sugar ?? '',
-          ice: review.ice ?? '',
-          size: review.size ?? '中',
-          toppings: review.toppings ?? [],
-          rating: review.rating ?? null,
-          comment: review.comment ?? '',
-        });
-      }
-      setLoadingReview(false);
-    });
+    getReviewById(reviewId)
+      .then(review => {
+        if (review) {
+          if (user && review.userId !== user.uid) {
+            setError('你沒有權限編輯這筆紀錄。');
+            setLoadingReview(false);
+            return;
+          }
+          setForm({
+            shopId: review.shopId,
+            drinkId: review.drinkId,
+            sugar: review.sugar ?? '',
+            ice: review.ice ?? '',
+            size: review.size ?? '中',
+            toppings: review.toppings ?? [],
+            rating: review.rating ?? null,
+            comment: review.comment ?? '',
+          });
+        }
+        setLoadingReview(false);
+      })
+      .catch(() => {
+        setLoadingReview(false);
+        setError('無法載入紀錄，請重試。');
+      });
   }, [reviewId, isEditMode]);
 
   useEffect(() => {
@@ -197,6 +207,7 @@ export default function NewReviewPage() {
   }
 
   if (loadingReview) return <div className="p-8 text-gray-400 text-sm">載入中...</div>;
+  if (error && !form.shopId) return <div className="p-8 text-red-500 text-sm">{error}</div>;
 
   return (
     <div className="max-w-xl mx-auto px-4 py-8">

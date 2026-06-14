@@ -88,7 +88,7 @@ export default function SuggestPage() {
               <button
                 key={opt.value}
                 type="button"
-                onClick={() => setType(opt.value)}
+                onClick={() => { setType(opt.value); setForm(f => ({ ...f, shopId: '' })); }}
                 className={`px-4 py-2 rounded-lg text-sm border transition-colors ${
                   type === opt.value
                     ? 'bg-indigo-600 text-white border-indigo-600'
