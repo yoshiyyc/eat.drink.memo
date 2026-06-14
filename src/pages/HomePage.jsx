@@ -66,11 +66,15 @@ export default function HomePage() {
   return (
     <div className="max-w-5xl mx-auto px-4 py-8 space-y-10">
 
-      {/* Action Strip */}
-      <div className="flex items-baseline justify-between pb-3" style={{ borderBottom: '1px solid var(--color-border)' }}>
-        <span style={{ fontSize: '14px', color: 'var(--color-muted)' }}>今天喝了什麼？</span>
-        <Link to="/new-review" style={{ fontSize: '14px', color: 'var(--color-accent)', fontWeight: 500 }}>
-          + 紀錄這杯 →
+      {/* Action Banner */}
+      <div className="py-6" style={{ borderBottom: '1px solid var(--color-border)' }}>
+        <p className="mb-4" style={{ fontSize: '16px', color: 'var(--color-muted)' }}>今天喝了什麼？</p>
+        <Link
+          to="/new-review"
+          className="inline-block px-8 py-3 font-medium"
+          style={{ fontSize: '16px', background: 'var(--color-text)', color: 'var(--color-bg)' }}
+        >
+          + 紀錄這杯
         </Link>
       </div>
 
@@ -175,7 +179,7 @@ export default function HomePage() {
                   style={{
                     fontSize: '14px',
                     fontWeight: i === 0 ? 700 : 400,
-                    color: i === 0 ? 'var(--color-accent)' : 'var(--color-muted)',
+                    color: 'var(--color-accent)',
                     flexShrink: 0,
                   }}
                 >
