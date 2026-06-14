@@ -3,9 +3,42 @@ import { Link } from 'react-router-dom';
 import { getShops } from '../services/shops';
 import { getLatestReviews, getWeeklyTrending } from '../services/reviews';
 
+function SectionLabel({ children }) {
+  return (
+    <div className="mb-3">
+      <p style={{
+        fontSize: '12px',
+        fontWeight: 700,
+        letterSpacing: '1.5px',
+        textTransform: 'uppercase',
+        color: 'var(--color-accent)',
+        marginBottom: '6px',
+      }}>
+        {children}
+      </p>
+      <div style={{ height: '1px', background: 'var(--color-border)' }} />
+    </div>
+  );
+}
+
 function StarDisplay({ rating }) {
   if (!rating) return null;
-  return <span className="text-yellow-400 text-xs">{'★'.repeat(rating)}{'☆'.repeat(5 - rating)}</span>;
+  return (
+    <span className="text-xs">
+      <span style={{ color: 'var(--color-accent)' }}>{'★'.repeat(rating)}</span>
+      <span style={{ color: 'var(--color-faded)' }}>{'☆'.repeat(5 - rating)}</span>
+    </span>
+  );
+}
+
+function formatDate(ts) {
+  if (!ts) return '';
+  const d = ts.toDate ? ts.toDate() : new Date(ts);
+  const now = new Date();
+  const mm = String(d.getMonth() + 1).padStart(2, '0');
+  const dd = String(d.getDate()).padStart(2, '0');
+  if (d.getFullYear() === now.getFullYear()) return `${mm}.${dd}`;
+  return `${d.getFullYear()}.${mm}.${dd}`;
 }
 
 export default function HomePage() {
@@ -31,72 +64,47 @@ export default function HomePage() {
   const hasMore = shops.length > 5;
 
   return (
-    <div className="max-w-5xl mx-auto px-4 py-8">
-
-      {/* Hero */}
-      <section className="bg-indigo-600 text-white rounded-2xl p-8 mb-8 text-center">
-        <h1 className="text-3xl font-bold mb-2">喝什麼好呢？</h1>
-        <p className="text-indigo-200 mb-6">記錄你喝過的飲料，找到下一杯最愛</p>
-        <input
-          type="text"
-          placeholder="搜尋店家或飲料..."
-          className="w-full max-w-md mx-auto block bg-white text-gray-800 rounded-xl px-4 py-3 text-sm focus:outline-none mb-4"
-          readOnly
-        />
-        <div className="flex gap-2 justify-center flex-wrap">
-          <button className="bg-white/20 hover:bg-white/30 text-white px-4 py-1.5 rounded-full text-sm transition-colors">
-            熱門
-          </button>
-          <button className="bg-white/20 hover:bg-white/30 text-white px-4 py-1.5 rounded-full text-sm transition-colors">
-            最新
-          </button>
-          <Link
-            to="/new-review"
-            className="bg-white text-indigo-600 font-medium px-4 py-1.5 rounded-full text-sm hover:bg-indigo-50 transition-colors"
-          >
-            + 記錄這杯
-          </Link>
-        </div>
-      </section>
+    <div className="max-w-5xl mx-auto px-4 py-8 space-y-10">
 
       {/* Shop Grid */}
-      <section className="mb-8">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="font-bold text-gray-800 text-lg">店家</h2>
-          {hasMore && (
-            <Link to="/shops" className="text-indigo-600 text-sm hover:underline">看全部 →</Link>
-          )}
-        </div>
+      <section>
+        <SectionLabel>店家</SectionLabel>
         {loading ? (
-          <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3">
+          <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2">
             {[...Array(5)].map((_, i) => (
-              <div key={i} className="bg-gray-200 rounded-xl h-24 animate-pulse" />
+              <div key={i} className="h-20 animate-pulse" style={{ background: 'var(--color-border-light)' }} />
             ))}
           </div>
         ) : shops.length === 0 ? (
-          <p className="text-gray-400 text-sm">尚未有店家資料</p>
+          <p style={{ fontSize: '13px', color: 'var(--color-muted)' }}>尚未有店家資料</p>
         ) : (
-          <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3">
+          <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2">
             {topShops.map(shop => (
               <Link
                 key={shop.id}
                 to={`/shop/${shop.id}`}
-                className="bg-white border border-gray-200 rounded-xl p-4 text-center hover:shadow-md hover:border-indigo-200 transition-all"
+                className="block p-3 text-center"
+                style={{ border: '1px solid var(--color-border)' }}
               >
                 {shop.logoUrl ? (
-                  <img src={shop.logoUrl} alt={shop.name} className="w-10 h-10 mx-auto mb-2 object-contain" />
+                  <img src={shop.logoUrl} alt={shop.name} className="w-8 h-8 mx-auto mb-2 object-contain" />
                 ) : (
-                  <div className="w-10 h-10 bg-indigo-100 rounded-full mx-auto mb-2" />
+                  <div className="w-8 h-8 mx-auto mb-2" style={{ background: 'var(--color-border-light)' }} />
                 )}
-                <p className="text-sm font-medium text-gray-800">{shop.name}</p>
+                <p style={{ fontSize: '12px', color: 'var(--color-text)' }}>{shop.name}</p>
               </Link>
             ))}
             {hasMore && (
               <Link
                 to="/shops"
-                className="bg-gray-50 border border-dashed border-gray-300 rounded-xl p-4 text-center text-gray-400 text-sm hover:bg-gray-100 hover:text-indigo-500 transition-colors flex items-center justify-center"
+                className="block p-3 flex items-center justify-center"
+                style={{
+                  border: '1px dashed var(--color-border)',
+                  color: 'var(--color-accent)',
+                  fontSize: '12px',
+                }}
               >
-                +更多
+                看全部 →
               </Link>
             )}
           </div>
@@ -104,31 +112,67 @@ export default function HomePage() {
       </section>
 
       {/* Weekly Trending */}
-      <section className="mb-8">
-        <h2 className="font-bold text-gray-800 text-lg mb-4">🔥 這週大家在喝</h2>
+      <section>
+        <SectionLabel>本週排行</SectionLabel>
         {loading ? (
           <div className="space-y-2">
             {[...Array(3)].map((_, i) => (
-              <div key={i} className="bg-gray-200 rounded-xl h-12 animate-pulse" />
+              <div key={i} className="h-8 animate-pulse" style={{ background: 'var(--color-border-light)' }} />
             ))}
           </div>
         ) : trending.length === 0 ? (
-          <div className="bg-white border border-gray-200 rounded-xl p-6 text-center">
-            <p className="text-gray-400 text-sm mb-3">這週還沒有紀錄，快來第一個！</p>
-            <Link to="/new-review" className="text-indigo-600 text-sm hover:underline">
-              立即記錄 →
-            </Link>
-          </div>
+          <p style={{ fontSize: '13px', color: 'var(--color-muted)' }}>
+            這週還沒有紀錄，{' '}
+            <Link to="/new-review" style={{ color: 'var(--color-accent)' }}>快來第一個！</Link>
+          </p>
         ) : (
-          <div className="bg-white border border-gray-200 rounded-xl divide-y divide-gray-100">
+          <div>
             {trending.map((item, i) => (
-              <div key={i} className="flex items-center gap-3 px-4 py-3">
-                <span className="text-sm font-bold text-gray-400 w-5 text-right">#{i + 1}</span>
-                <div className="flex-1 min-w-0">
-                  <span className="text-xs text-gray-400">{item.shopName}</span>
-                  <p className="text-sm font-medium text-gray-800 truncate">{item.drinkName}</p>
+              <div
+                key={i}
+                className="flex items-baseline justify-between py-2"
+                style={{ borderBottom: i < trending.length - 1 ? '1px solid var(--color-border-light)' : 'none' }}
+              >
+                <div className="flex items-baseline gap-2 min-w-0">
+                  <span style={{
+                    fontSize: '11px',
+                    color: i === 0 ? 'var(--color-accent)' : 'var(--color-border)',
+                    minWidth: '18px',
+                    textAlign: 'right',
+                    flexShrink: 0,
+                  }}>
+                    {String(i + 1).padStart(2, '0')}
+                  </span>
+                  <span style={{
+                    fontSize: '11px',
+                    color: i === 0 ? 'var(--color-accent)' : 'var(--color-border)',
+                    flexShrink: 0,
+                  }}>
+                    {item.shopName}
+                  </span>
+                  <span style={{ color: 'var(--color-border)', flexShrink: 0 }}>·</span>
+                  <span
+                    className="truncate"
+                    style={{
+                      fontSize: '13px',
+                      fontWeight: 600,
+                      color: i === 0 ? 'var(--color-text)' : 'var(--color-muted)',
+                    }}
+                  >
+                    {item.drinkName}
+                  </span>
                 </div>
-                <span className="text-sm text-indigo-600 font-medium whitespace-nowrap">×{item.count}</span>
+                <span
+                  className="whitespace-nowrap ml-4"
+                  style={{
+                    fontSize: '12px',
+                    fontWeight: i === 0 ? 700 : 400,
+                    color: i === 0 ? 'var(--color-accent)' : 'var(--color-border)',
+                    flexShrink: 0,
+                  }}
+                >
+                  ×{item.count}
+                </span>
               </div>
             ))}
           </div>
@@ -137,39 +181,49 @@ export default function HomePage() {
 
       {/* Latest Reviews */}
       <section>
-        <h2 className="font-bold text-gray-800 text-lg mb-4">最新紀錄</h2>
+        <SectionLabel>最新紀錄</SectionLabel>
         {loading ? (
-          <div className="space-y-3">
+          <div className="space-y-4">
             {[...Array(3)].map((_, i) => (
-              <div key={i} className="bg-gray-200 rounded-xl h-20 animate-pulse" />
+              <div key={i} className="h-16 animate-pulse" style={{ background: 'var(--color-border-light)' }} />
             ))}
           </div>
         ) : reviews.length === 0 ? (
-          <div className="bg-white border border-gray-200 rounded-xl p-6 text-center">
-            <p className="text-gray-400 text-sm mb-3">還沒有紀錄，成為第一個留下心得的人！</p>
-            <Link to="/new-review" className="text-indigo-600 text-sm hover:underline">
-              立即記錄 →
-            </Link>
-          </div>
+          <p style={{ fontSize: '13px', color: 'var(--color-muted)' }}>
+            還沒有紀錄，{' '}
+            <Link to="/new-review" style={{ color: 'var(--color-accent)' }}>成為第一個留下心得的人！</Link>
+          </p>
         ) : (
-          <div className="space-y-3">
-            {reviews.map(review => (
+          <div>
+            {reviews.map((review, i) => (
               <Link
                 key={review.id}
                 to={`/shop/${review.shopId}`}
-                className="block bg-white border border-gray-200 rounded-xl p-4 hover:border-indigo-200 transition-colors"
+                className="block py-3"
+                style={{ borderBottom: i < reviews.length - 1 ? '1px solid var(--color-border-light)' : 'none' }}
               >
-                <div className="flex items-center justify-between mb-1">
-                  <span className="text-sm font-medium text-gray-800">{review.displayName}</span>
-                  <StarDisplay rating={review.rating} />
+                <div className="flex justify-between items-baseline mb-1">
+                  <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--color-text)' }}>
+                    {review.displayName || '訪客'}
+                  </span>
+                  <span style={{ fontSize: '11px', color: 'var(--color-muted)' }}>
+                    {formatDate(review.createdAt)}
+                  </span>
                 </div>
-                <p className="text-sm text-gray-500">
-                  <span className="text-gray-700 font-medium">{review.shopName}</span>
-                  {' · '}
-                  {review.drinkName}
-                </p>
+                <div className="flex justify-between items-baseline mb-1">
+                  <span className="min-w-0 truncate mr-2">
+                    <span style={{ fontSize: '12px', color: 'var(--color-accent)' }}>{review.shopName}</span>
+                    <span style={{ color: 'var(--color-border)', margin: '0 4px' }}>·</span>
+                    <span style={{ fontSize: '14px', fontWeight: 600, color: 'var(--color-text)' }}>{review.drinkName}</span>
+                  </span>
+                  {review.rating && (
+                    <span className="whitespace-nowrap ml-2 flex-shrink-0">
+                      <StarDisplay rating={review.rating} />
+                    </span>
+                  )}
+                </div>
                 {review.comment && (
-                  <p className="text-sm text-gray-400 mt-1 truncate">{review.comment}</p>
+                  <p style={{ fontSize: '12px', color: '#666' }}>「{review.comment}」</p>
                 )}
               </Link>
             ))}
