@@ -95,10 +95,11 @@ needsGuestSetup: !user && !guestName,  // 新增至 value 物件
 - `needsGuestSetup` 從 `useAuth()` 取得
 - 渲染邏輯：
   ```jsx
-  {(needsGuestSetup || showWelcomeModal) && (
+  {!user && (needsGuestSetup || showWelcomeModal) && (
     <WelcomeModal onClose={() => setShowWelcomeModal(false)} />
   )}
   ```
+  `!user` 守衛確保 Google 登入完成後 modal 立即消失，即使 `showWelcomeModal` state 尚未重置。
 
 **Nav 右側三種狀態：**
 
