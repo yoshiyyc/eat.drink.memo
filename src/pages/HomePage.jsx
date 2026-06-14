@@ -180,7 +180,7 @@ export default function HomePage() {
                   className="whitespace-nowrap ml-4"
                   style={{
                     fontSize: '14px',
-                    fontWeight: i === 0 ? 700 : 400,
+                    fontWeight: 700,
                     color: 'var(--color-accent)',
                     flexShrink: 0,
                   }}
@@ -228,7 +228,7 @@ export default function HomePage() {
                   <span className="min-w-0 truncate mr-2">
                     <span style={{ fontSize: '14px', color: 'var(--color-accent)' }}>{review.shopName}</span>
                     <span style={{ color: 'var(--color-border)', margin: '0 4px' }}>·</span>
-                    <span style={{ fontSize: '16px', fontWeight: 600, color: 'var(--color-text)' }}>{review.drinkName}</span>
+                    <span style={{ fontSize: '15px', fontWeight: 600, color: 'var(--color-text)' }}>{review.drinkName}</span>
                   </span>
                   {review.rating && (
                     <span className="whitespace-nowrap ml-2 flex-shrink-0">
