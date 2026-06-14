@@ -10,6 +10,8 @@ export default function HomePage() {
     getShops().then(data => {
       setShops(data);
       setLoading(false);
+    }).catch(() => {
+      setLoading(false);
     });
   }, []);
 

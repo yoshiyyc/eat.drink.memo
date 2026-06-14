@@ -1,10 +1,11 @@
-import { collection, doc, getDoc, getDocs, orderBy, query } from 'firebase/firestore';
+import { collection, doc, getDoc, getDocs } from 'firebase/firestore';
 import { db } from '../firebase';
 
 export async function getShops() {
-  const q = query(collection(db, 'shops'), orderBy('reviewCount', 'desc'));
-  const snapshot = await getDocs(q);
-  return snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+  const snapshot = await getDocs(collection(db, 'shops'));
+  return snapshot.docs
+    .map(d => ({ id: d.id, ...d.data() }))
+    .sort((a, b) => (b.reviewCount ?? 0) - (a.reviewCount ?? 0));
 }
 
 export async function getShopById(shopId) {
