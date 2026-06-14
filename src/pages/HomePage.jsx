@@ -1,18 +1,26 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { getShops } from '../services/shops';
+import { getLatestReviews } from '../services/reviews';
+
+function StarDisplay({ rating }) {
+  if (!rating) return null;
+  return <span className="text-yellow-400 text-xs">{'★'.repeat(rating)}{'☆'.repeat(5 - rating)}</span>;
+}
 
 export default function HomePage() {
   const [shops, setShops] = useState([]);
+  const [reviews, setReviews] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    getShops().then(data => {
-      setShops(data);
-      setLoading(false);
-    }).catch(() => {
-      setLoading(false);
-    });
+    Promise.all([getShops(), getLatestReviews(5)])
+      .then(([shopsData, reviewsData]) => {
+        setShops(shopsData);
+        setReviews(reviewsData);
+        setLoading(false);
+      })
+      .catch(() => setLoading(false));
   }, []);
 
   const topShops = shops.slice(0, 5);
@@ -28,16 +36,22 @@ export default function HomePage() {
         <input
           type="text"
           placeholder="搜尋店家或飲料..."
-          className="w-full max-w-md mx-auto block bg-white text-gray-800 rounded-xl px-4 py-3 text-sm focus:outline-none"
+          className="w-full max-w-md mx-auto block bg-white text-gray-800 rounded-xl px-4 py-3 text-sm focus:outline-none mb-4"
           readOnly
         />
-        <div className="flex gap-2 justify-center mt-4">
+        <div className="flex gap-2 justify-center flex-wrap">
           <button className="bg-white/20 hover:bg-white/30 text-white px-4 py-1.5 rounded-full text-sm transition-colors">
             熱門
           </button>
           <button className="bg-white/20 hover:bg-white/30 text-white px-4 py-1.5 rounded-full text-sm transition-colors">
             最新
           </button>
+          <Link
+            to="/new-review"
+            className="bg-white text-indigo-600 font-medium px-4 py-1.5 rounded-full text-sm hover:bg-indigo-50 transition-colors"
+          >
+            + 記錄這杯
+          </Link>
         </div>
       </section>
 
@@ -49,7 +63,6 @@ export default function HomePage() {
             <span className="text-indigo-600 text-sm cursor-pointer">看全部 →</span>
           )}
         </div>
-
         {loading ? (
           <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3">
             {[...Array(5)].map((_, i) => (
@@ -67,11 +80,7 @@ export default function HomePage() {
                 className="bg-white border border-gray-200 rounded-xl p-4 text-center hover:shadow-md hover:border-indigo-200 transition-all"
               >
                 {shop.logoUrl ? (
-                  <img
-                    src={shop.logoUrl}
-                    alt={shop.name}
-                    className="w-10 h-10 mx-auto mb-2 object-contain"
-                  />
+                  <img src={shop.logoUrl} alt={shop.name} className="w-10 h-10 mx-auto mb-2 object-contain" />
                 ) : (
                   <div className="w-10 h-10 bg-indigo-100 rounded-full mx-auto mb-2" />
                 )}
@@ -87,7 +96,7 @@ export default function HomePage() {
         )}
       </section>
 
-      {/* Weekly Trending */}
+      {/* Weekly Trending placeholder */}
       <section className="mb-8">
         <h2 className="font-bold text-gray-800 text-lg mb-4">🔥 這週大家在喝</h2>
         <div className="bg-white border border-gray-200 rounded-xl">
@@ -100,11 +109,43 @@ export default function HomePage() {
       {/* Latest Reviews */}
       <section>
         <h2 className="font-bold text-gray-800 text-lg mb-4">最新紀錄</h2>
-        <div className="bg-white border border-gray-200 rounded-xl">
-          <p className="p-6 text-gray-400 text-sm text-center">
-            還沒有紀錄，成為第一個留下心得的人！
-          </p>
-        </div>
+        {loading ? (
+          <div className="space-y-3">
+            {[...Array(3)].map((_, i) => (
+              <div key={i} className="bg-gray-200 rounded-xl h-20 animate-pulse" />
+            ))}
+          </div>
+        ) : reviews.length === 0 ? (
+          <div className="bg-white border border-gray-200 rounded-xl p-6 text-center">
+            <p className="text-gray-400 text-sm mb-3">還沒有紀錄，成為第一個留下心得的人！</p>
+            <Link to="/new-review" className="text-indigo-600 text-sm hover:underline">
+              立即記錄 →
+            </Link>
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {reviews.map(review => (
+              <Link
+                key={review.id}
+                to={`/shop/${review.shopId}`}
+                className="block bg-white border border-gray-200 rounded-xl p-4 hover:border-indigo-200 transition-colors"
+              >
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-sm font-medium text-gray-800">{review.displayName}</span>
+                  <StarDisplay rating={review.rating} />
+                </div>
+                <p className="text-sm text-gray-500">
+                  <span className="text-gray-700 font-medium">{review.shopName}</span>
+                  {' · '}
+                  {review.drinkName}
+                </p>
+                {review.comment && (
+                  <p className="text-sm text-gray-400 mt-1 truncate">{review.comment}</p>
+                )}
+              </Link>
+            ))}
+          </div>
+        )}
       </section>
 
     </div>
