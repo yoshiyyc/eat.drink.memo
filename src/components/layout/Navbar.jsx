@@ -1,94 +1,74 @@
-import { useState } from 'react';
+// src/components/layout/Navbar.jsx
+import { useState, useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import ProfileSetupModal from '../ProfileSetupModal';
+import WelcomeModal from '../WelcomeModal';
+import UserDropdown from '../UserDropdown';
 
 export default function Navbar() {
-  const { isLoggedIn, isGuest, displayName, signInWithGoogle, signOut, setGuest, needsProfileSetup } = useAuth();
-  const [showGuestInput, setShowGuestInput] = useState(false);
-  const [nicknameInput, setNicknameInput] = useState('');
+  const { user, profile, isLoggedIn, needsProfileSetup, needsGuestSetup } = useAuth();
+  const [showWelcomeModal, setShowWelcomeModal] = useState(false);
+  const [showDropdown, setShowDropdown] = useState(false);
+  const dropdownRef = useRef(null);
 
-  function handleGuestSubmit(e) {
-    e.preventDefault();
-    const trimmed = nicknameInput.trim();
-    if (trimmed) {
-      setGuest(trimmed);
-      setShowGuestInput(false);
-      setNicknameInput('');
+  useEffect(() => {
+    if (!showDropdown) return;
+    function handleClickOutside(e) {
+      if (!dropdownRef.current?.contains(e.target)) {
+        setShowDropdown(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [showDropdown]);
+
+  const avatarSrc = profile?.avatarUrl ?? user?.photoURL ?? null;
+
+  function handleAvatarClick() {
+    if (isLoggedIn) {
+      setShowDropdown(v => !v);
+    } else {
+      setShowWelcomeModal(true);
     }
   }
 
   return (
     <>
       {needsProfileSetup && <ProfileSetupModal />}
+      {!user && (needsGuestSetup || showWelcomeModal) && (
+        <WelcomeModal onClose={() => setShowWelcomeModal(false)} />
+      )}
 
       <nav className="bg-white border-b border-gray-200 px-4 py-3">
-      <div className="max-w-5xl mx-auto flex items-center justify-between">
-        <Link to="/" className="font-bold text-lg tracking-tight text-gray-900">
-          eat.drink.memo
-        </Link>
-        <div className="flex items-center gap-3 text-sm">
-          {isLoggedIn || isGuest ? (
-            <>
-              <span className="text-gray-600">{displayName}</span>
-              {isLoggedIn && (
-                <Link to="/dashboard" className="text-gray-700 hover:text-indigo-600">
-                  我的紀錄
-                </Link>
-              )}
-              <button
-                onClick={signOut}
-                className="text-gray-400 hover:text-gray-700"
-              >
-                登出
-              </button>
-            </>
-          ) : (
-            <>
-              <button
-                onClick={() => setShowGuestInput(v => !v)}
-                className="text-gray-600 hover:text-gray-900"
-              >
-                以訪客繼續
-              </button>
-              <button
-                onClick={signInWithGoogle}
-                className="bg-indigo-600 text-white px-3 py-1.5 rounded-lg hover:bg-indigo-700"
-              >
-                Google 登入
-              </button>
-            </>
-          )}
-        </div>
-      </div>
+        <div className="max-w-5xl mx-auto flex items-center justify-between">
+          <Link to="/" className="font-bold text-lg tracking-tight text-gray-900">
+            eat.drink.memo
+          </Link>
 
-      {showGuestInput && (
-        <div className="max-w-5xl mx-auto mt-2">
-          <form onSubmit={handleGuestSubmit} className="flex gap-2">
-            <input
-              value={nicknameInput}
-              onChange={e => setNicknameInput(e.target.value)}
-              placeholder="你的暱稱..."
-              className="border border-gray-300 rounded-lg px-3 py-1.5 text-sm flex-1 focus:outline-none focus:border-indigo-400"
-              autoFocus
-            />
+          <div className="relative" ref={dropdownRef}>
             <button
-              type="submit"
-              className="bg-indigo-600 text-white px-3 py-1.5 rounded-lg text-sm hover:bg-indigo-700"
+              onClick={handleAvatarClick}
+              className="w-9 h-9 rounded-full overflow-hidden focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:ring-offset-1"
+              aria-label="帳號選單"
             >
-              確認
+              {avatarSrc ? (
+                <img src={avatarSrc} alt="avatar" className="w-full h-full object-cover" />
+              ) : (
+                <div className="w-full h-full bg-gray-300 flex items-center justify-center">
+                  <svg className="w-5 h-5 text-gray-500" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+                    <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
+                  </svg>
+                </div>
+              )}
             </button>
-            <button
-              type="button"
-              onClick={() => setShowGuestInput(false)}
-              className="text-sm text-gray-400 hover:text-gray-700"
-            >
-              取消
-            </button>
-          </form>
+
+            {isLoggedIn && showDropdown && (
+              <UserDropdown onClose={() => setShowDropdown(false)} />
+            )}
+          </div>
         </div>
-      )}
-    </nav>
+      </nav>
     </>
   );
 }
