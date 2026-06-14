@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { getReviewsByUser } from '../services/reviews';
+import { getReviewsByUser, deleteReview } from '../services/reviews';
 
 function StarDisplay({ rating }) {
   if (!rating) return null;
@@ -26,6 +26,16 @@ export default function DashboardPage() {
       })
       .catch(() => setLoading(false));
   }, [isLoggedIn, user, navigate]);
+
+  async function handleDelete(review) {
+    if (!window.confirm(`確定要刪除「${review.drinkName}」這筆紀錄嗎？`)) return;
+    try {
+      await deleteReview(review.id, review.shopId);
+      setReviews(prev => prev.filter(r => r.id !== review.id));
+    } catch (err) {
+      alert(`刪除失敗：${err.message}`);
+    }
+  }
 
   if (!isLoggedIn) return null;
 
@@ -56,14 +66,28 @@ export default function DashboardPage() {
         <div className="space-y-3">
           {reviews.map(review => (
             <div key={review.id} className="bg-white border border-gray-200 rounded-xl p-4">
-              <div className="flex items-center justify-between mb-1">
+              <div className="flex items-start justify-between mb-1">
                 <Link
                   to={`/shop/${review.shopId}`}
                   className="text-sm font-medium text-gray-800 hover:text-indigo-600"
                 >
                   {review.shopName} · {review.drinkName}
                 </Link>
-                <StarDisplay rating={review.rating} />
+                <div className="flex items-center gap-2 ml-2 shrink-0">
+                  <StarDisplay rating={review.rating} />
+                  <Link
+                    to={`/new-review?reviewId=${review.id}&shopId=${review.shopId}&drinkId=${review.drinkId}`}
+                    className="text-xs text-indigo-500 hover:text-indigo-700"
+                  >
+                    編輯
+                  </Link>
+                  <button
+                    onClick={() => handleDelete(review)}
+                    className="text-xs text-red-400 hover:text-red-600"
+                  >
+                    刪除
+                  </button>
+                </div>
               </div>
               <p className="text-xs text-gray-400 mb-1">
                 {[review.sugar, review.ice, review.size && `${review.size}杯`]
