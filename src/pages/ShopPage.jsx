@@ -2,7 +2,8 @@ import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { getShopById } from '../services/shops';
 import { getDrinksByShop } from '../services/drinks';
-import { getReviewsByShop } from '../services/reviews';
+import { getReviewsByShop, deleteReview } from '../services/reviews';
+import { useAuth } from '../contexts/AuthContext';
 
 function StarDisplay({ rating }) {
   if (!rating) return null;
@@ -15,6 +16,7 @@ function StarDisplay({ rating }) {
 
 export default function ShopPage() {
   const { id } = useParams();
+  const { user } = useAuth();
   const [shop, setShop] = useState(null);
   const [drinks, setDrinks] = useState([]);
   const [reviews, setReviews] = useState([]);
@@ -36,6 +38,16 @@ export default function ShopPage() {
     }
     load().catch(() => setLoading(false));
   }, [id]);
+
+  async function handleDelete(review) {
+    if (!window.confirm(`確定要刪除「${review.drinkName}」這筆紀錄嗎？`)) return;
+    try {
+      await deleteReview(review.id, review.shopId);
+      setReviews(prev => prev.filter(r => r.id !== review.id));
+    } catch (err) {
+      alert(`刪除失敗：${err.message}`);
+    }
+  }
 
   if (loading) return <div className="p-8 text-gray-400 text-sm">載入中...</div>;
   if (!shop) return <div className="p-8 text-gray-400 text-sm">找不到店家</div>;
@@ -114,7 +126,25 @@ export default function ShopPage() {
                   <span className="font-medium text-sm text-gray-800">
                     {review.displayName}
                   </span>
-                  <StarDisplay rating={review.rating} />
+                  <div className="flex items-center gap-2">
+                    <StarDisplay rating={review.rating} />
+                    {user && review.userId === user.uid && (
+                      <>
+                        <Link
+                          to={`/new-review?reviewId=${review.id}&shopId=${review.shopId}&drinkId=${review.drinkId}`}
+                          className="text-xs text-indigo-500 hover:text-indigo-700"
+                        >
+                          編輯
+                        </Link>
+                        <button
+                          onClick={() => handleDelete(review)}
+                          className="text-xs text-red-400 hover:text-red-600"
+                        >
+                          刪除
+                        </button>
+                      </>
+                    )}
+                  </div>
                 </div>
                 <p className="text-sm text-gray-600 mb-1">
                   {review.drinkName}
