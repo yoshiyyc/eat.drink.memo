@@ -10,6 +10,7 @@ import {
   runTransaction,
   serverTimestamp,
   updateDoc,
+  Timestamp,
 } from 'firebase/firestore';
 import { db } from '../firebase';
 
@@ -102,4 +103,26 @@ export async function deleteReview(reviewId, shopId) {
     }
     transaction.delete(reviewRef);
   });
+}
+
+export async function getWeeklyTrending(topN = 5) {
+  const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+  const q = query(
+    collection(db, 'reviews'),
+    where('createdAt', '>=', Timestamp.fromDate(sevenDaysAgo))
+  );
+  const snapshot = await getDocs(q);
+
+  const counts = {};
+  for (const r of snapshot.docs.map(d => d.data())) {
+    const key = r.drinkId ?? `${r.shopId}::${r.drinkName}`;
+    if (!counts[key]) {
+      counts[key] = { shopName: r.shopName, drinkName: r.drinkName, count: 0 };
+    }
+    counts[key].count++;
+  }
+
+  return Object.values(counts)
+    .sort((a, b) => b.count - a.count)
+    .slice(0, topN);
 }
