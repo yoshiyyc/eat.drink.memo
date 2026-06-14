@@ -1,4 +1,3 @@
-// src/components/layout/Navbar.jsx
 import { useState, useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
@@ -40,36 +39,56 @@ export default function Navbar() {
         <WelcomeModal onClose={() => setShowWelcomeModal(false)} />
       )}
 
-      <nav className="bg-white border-b border-gray-200 px-4 py-3">
+      <nav
+        className="px-4 py-3"
+        style={{ borderBottom: '1.5px solid var(--color-text)', background: 'var(--color-bg)' }}
+      >
         <div className="max-w-5xl mx-auto flex items-center justify-between">
-          <Link to="/" className="font-bold text-lg tracking-tight text-gray-900">
+          <Link
+            to="/"
+            className="tracking-tight"
+            style={{ fontSize: '14px', fontWeight: 700, color: 'var(--color-text)' }}
+          >
             eat.drink.memo
           </Link>
 
-          <div className="flex items-center gap-2" ref={dropdownRef}>
-            {(isLoggedIn || isGuest) && displayName && (
-              <span className="hidden sm:block text-sm text-gray-600">{displayName}</span>
-            )}
-            <div className="relative">
-            <button
-              onClick={handleAvatarClick}
-              className="w-9 h-9 rounded-full overflow-hidden focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:ring-offset-1"
-              aria-label="帳號選單"
+          <div className="flex items-center gap-3" ref={dropdownRef}>
+            <Link
+              to="/new-review"
+              className="px-3 py-1.5"
+              style={{
+                fontSize: '12px',
+                background: 'var(--color-text)',
+                color: 'var(--color-bg)',
+                fontWeight: 500,
+              }}
             >
-              {avatarSrc ? (
-                <img src={avatarSrc} alt="avatar" className="w-full h-full object-cover" />
-              ) : (
-                <div className="w-full h-full bg-gray-300 flex items-center justify-center">
-                  <svg className="w-5 h-5 text-gray-500" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
-                    <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
-                  </svg>
-                </div>
-              )}
-            </button>
+              + 記錄這杯
+            </Link>
 
-            {isLoggedIn && showDropdown && (
-              <UserDropdown onClose={() => setShowDropdown(false)} />
-            )}
+            <div className="relative">
+              <button
+                onClick={handleAvatarClick}
+                className="w-8 h-8 rounded-full overflow-hidden focus:outline-none"
+                aria-label="帳號選單"
+              >
+                {avatarSrc ? (
+                  <img src={avatarSrc} alt="avatar" className="w-full h-full object-cover" />
+                ) : (
+                  <div
+                    className="w-full h-full flex items-center justify-center"
+                    style={{ background: 'var(--color-border)' }}
+                  >
+                    <svg className="w-4 h-4" style={{ color: 'var(--color-muted)' }} fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+                      <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
+                    </svg>
+                  </div>
+                )}
+              </button>
+
+              {isLoggedIn && showDropdown && (
+                <UserDropdown onClose={() => setShowDropdown(false)} />
+              )}
             </div>
           </div>
         </div>
