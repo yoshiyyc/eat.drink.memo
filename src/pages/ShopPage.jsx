@@ -41,6 +41,12 @@ export default function ShopPage() {
   const [drinks, setDrinks] = useState([]);
   const [reviews, setReviews] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [drinkSearch, setDrinkSearch] = useState('');
+
+  function pageSize() {
+    return window.matchMedia('(min-width: 640px)').matches ? 30 : 20;
+  }
+  const [visibleCount, setVisibleCount] = useState(() => pageSize());
 
   useEffect(() => {
     async function load() {
@@ -107,22 +113,55 @@ export default function ShopPage() {
         <SectionLabel>飲料清單</SectionLabel>
         {drinks.length === 0 ? (
           <p className="text-sm text-muted">尚無飲料資料</p>
-        ) : (
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-            {drinks.map(drink => (
-              <Link
-                key={drink.id}
-                to={`/drink/${drink.id}`}
-                className="flex items-center justify-between px-3 py-2 text-sm border border-border"
-              >
-                <span>{drink.name}</span>
-                {drink.isSeasonal && (
-                  <span className="text-[11px] text-accent">季節</span>
+        ) : (() => {
+          const filtered = drinks.filter(d =>
+            d.name.toLowerCase().includes(drinkSearch.toLowerCase())
+          );
+          const display = filtered.slice(0, visibleCount);
+          const hasMore = filtered.length > visibleCount;
+          return (
+            <>
+              <input
+                type="text"
+                value={drinkSearch}
+                onChange={e => { setDrinkSearch(e.target.value); setVisibleCount(pageSize()); }}
+                placeholder="搜尋飲料..."
+                className="form-input mb-3"
+              />
+              <div className="relative">
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                  {display.map(drink => (
+                    <Link
+                      key={drink.id}
+                      to={`/drink/${drink.id}`}
+                      className="flex items-center justify-between px-3 py-2 text-sm border border-border"
+                    >
+                      <span>{drink.name}</span>
+                      {drink.isSeasonal && (
+                        <span className="text-[11px] text-accent">季節</span>
+                      )}
+                    </Link>
+                  ))}
+                </div>
+                {hasMore && (
+                  <div className="absolute bottom-0 inset-x-0 h-20 bg-gradient-to-t from-bg to-transparent pointer-events-none" />
                 )}
-              </Link>
-            ))}
-          </div>
-        )}
+              </div>
+              {hasMore && (
+                <button
+                  type="button"
+                  onClick={() => setVisibleCount(c => c + pageSize())}
+                  className="mt-2 w-full flex items-center justify-center gap-1 py-2 text-[13px] text-muted hover:text-text transition-colors"
+                >
+                  展開更多
+                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                    <path d="M2 5l5 5 5-5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                </button>
+              )}
+            </>
+          );
+        })()}
       </section>
 
       {/* 大家的紀錄 */}

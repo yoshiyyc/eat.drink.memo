@@ -1,16 +1,67 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { getShops } from '../services/shops';
 import { getDrinksByShop } from '../services/drinks';
 import { addReview, updateReview, getReviewById } from '../services/reviews';
 import { useAuth } from '../contexts/AuthContext';
 
-const SIZES = ['中', '大'];
+function SearchableDrinkSelect({ drinks, value, onChange }) {
+  const [query, setQuery] = useState('');
+  const [open, setOpen] = useState(false);
+  const containerRef = useRef(null);
 
-function RadioGroup({ label, options, value, onChange, disabled }) {
+  const selected = drinks.find(d => d.id === value);
+  const filtered = drinks.filter(d =>
+    d.name.toLowerCase().includes(query.toLowerCase())
+  );
+
+  useEffect(() => {
+    function onMouseDown(e) {
+      if (!containerRef.current?.contains(e.target)) setOpen(false);
+    }
+    document.addEventListener('mousedown', onMouseDown);
+    return () => document.removeEventListener('mousedown', onMouseDown);
+  }, []);
+
+  return (
+    <div ref={containerRef} className="relative">
+      <input
+        type="text"
+        value={open ? query : (selected?.name ?? '')}
+        onChange={e => { setQuery(e.target.value); setOpen(true); onChange(''); }}
+        onFocus={() => { setQuery(''); setOpen(true); }}
+        placeholder="搜尋或選擇飲料"
+        className="form-input"
+        autoComplete="off"
+      />
+      {open && (
+        <ul className="absolute z-10 w-full mt-1 max-h-56 overflow-y-auto bg-bg border border-border shadow-sm">
+          {filtered.length > 0 ? filtered.map(drink => (
+            <li key={drink.id}>
+              <button
+                type="button"
+                onMouseDown={() => { onChange(drink.id); setOpen(false); setQuery(''); }}
+                className="w-full text-left px-3 py-2 text-sm hover:bg-border-light"
+              >
+                {drink.name}{drink.isSeasonal ? ' 🌿' : ''}
+              </button>
+            </li>
+          )) : (
+            <li className="px-3 py-2 text-sm text-muted">沒有符合的飲料</li>
+          )}
+        </ul>
+      )}
+    </div>
+  );
+}
+
+function RadioGroup({ label, options, value, onChange, disabled, note }) {
   return (
     <div>
-      <p className="form-label">{label}</p>
+      <p className="form-label">
+        {label}
+        {note && <span className="ml-1 text-xs text-muted font-normal">（{note}）</span>}
+      </p>
       <div className="flex flex-wrap gap-2">
         {options.map(opt => (
           <button
@@ -26,6 +77,7 @@ function RadioGroup({ label, options, value, onChange, disabled }) {
     </div>
   );
 }
+
 
 function CheckboxGroup({ label, options, value, onChange }) {
   function toggle(opt) {
@@ -90,7 +142,7 @@ export default function NewReviewPage() {
     drinkId: searchParams.get('drinkId') ?? '',
     sugar: '',
     ice: '',
-    size: '中',
+    size: '',
     toppings: [],
     rating: null,
     comment: '',
@@ -115,7 +167,7 @@ export default function NewReviewPage() {
             drinkId: review.drinkId,
             sugar: review.sugar ?? '',
             ice: review.ice ?? '',
-            size: review.size ?? '中',
+            size: review.size ?? '',
             toppings: review.toppings ?? [],
             rating: review.rating ?? null,
             comment: review.comment ?? '',
@@ -140,10 +192,44 @@ export default function NewReviewPage() {
     if (shop) {
       getDrinksByShop(form.shopId).then(setDrinks);
       if (!isEditMode) {
-        setForm(f => ({ ...f, sugar: '', ice: '', toppings: [] }));
+        setForm(f => ({
+          ...f,
+          sugar: '',
+          ice: '',
+          size: shop.sizeOptions?.[0] ?? '',
+          toppings: [],
+        }));
       }
     }
   }, [form.shopId, shops, isEditMode]);
+
+  // When drink changes, apply fixedOptions and resolve size
+  useEffect(() => {
+    if (!form.drinkId || !drinks.length || isEditMode) return;
+    const drink = drinks.find(d => d.id === form.drinkId);
+    if (!drink) return;
+
+    const fixedSugar = drink.fixedOptions?.sugar;
+    const fixedIce   = drink.fixedOptions?.ice;
+    const sizeOpts   = drink.availableSizes ?? selectedShop?.sizeOptions ?? [];
+
+    setForm(f => ({
+      ...f,
+      sugar: fixedSugar && fixedSugar !== '固定' ? fixedSugar : '',
+      ice:   fixedIce   && fixedIce   !== '固定' ? fixedIce   : '',
+      size:  sizeOpts.length === 1
+        ? sizeOpts[0]
+        : (sizeOpts.includes(f.size) ? f.size : (sizeOpts[0] ?? '')),
+    }));
+  }, [form.drinkId, drinks]);
+
+  // Derive selected drink and effective options
+  const selectedDrink       = drinks.find(d => d.id === form.drinkId) ?? null;
+  const fixedSugar          = selectedDrink?.fixedOptions?.sugar ?? null;
+  const fixedIce            = selectedDrink?.fixedOptions?.ice   ?? null;
+  const effectiveSugarOpts  = selectedDrink?.sugarOptions   ?? selectedShop?.sugarOptions   ?? [];
+  const effectiveIceOpts    = selectedDrink?.iceOptions     ?? selectedShop?.iceOptions     ?? [];
+  const effectiveSizeOpts   = selectedDrink?.availableSizes ?? selectedShop?.sizeOptions    ?? [];
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -155,31 +241,31 @@ export default function NewReviewPage() {
     try {
       if (isEditMode) {
         await updateReview(reviewId, {
-          sugar: form.sugar || null,
-          ice: form.ice || null,
-          size: form.size,
+          sugar:   form.sugar || null,
+          ice:     form.ice   || null,
+          size:    form.size  || null,
           toppings: form.toppings,
-          rating: form.rating,
+          rating:  form.rating,
           comment: form.comment.trim() || null,
         });
       } else {
-        const shop = shops.find(s => s.id === form.shopId);
+        const shop  = shops.find(s => s.id === form.shopId);
         const drink = drinks.find(d => d.id === form.drinkId);
         await addReview({
-          shopId: form.shopId,
-          shopName: shop?.name ?? '',
-          drinkId: form.drinkId,
-          drinkName: drink?.name ?? '',
-          userId: isLoggedIn ? user.uid : null,
+          shopId:        form.shopId,
+          shopName:      shop?.name ?? '',
+          drinkId:       form.drinkId,
+          drinkName:     drink?.name ?? '',
+          userId:        isLoggedIn ? user.uid : null,
           guestNickname: isGuest ? guestName : null,
-          displayName: displayName ?? '匿名',
-          sugar: form.sugar || null,
-          ice: form.ice || null,
-          size: form.size,
-          toppings: form.toppings,
-          rating: form.rating,
-          comment: form.comment.trim() || null,
-          nextTime: null,
+          displayName:   displayName ?? '匿名',
+          sugar:         form.sugar || null,
+          ice:           form.ice   || null,
+          size:          form.size  || null,
+          toppings:      form.toppings,
+          rating:        form.rating,
+          comment:       form.comment.trim() || null,
+          nextTime:      null,
         });
       }
       navigate(form.shopId ? `/shop/${form.shopId}` : '/');
@@ -228,51 +314,59 @@ export default function NewReviewPage() {
                 {drinks.find(d => d.id === form.drinkId)?.name ?? '載入中...'}
               </p>
             ) : (
-              <select
+              <SearchableDrinkSelect
+                drinks={drinks}
                 value={form.drinkId}
-                onChange={e => setForm(f => ({ ...f, drinkId: e.target.value }))}
-                className="form-input"
-              >
-                <option value="">請選擇飲料</option>
-                {drinks.map(drink => (
-                  <option key={drink.id} value={drink.id}>
-                    {drink.name}{drink.isSeasonal ? ' 🌿' : ''}
-                  </option>
-                ))}
-              </select>
+                onChange={id => setForm(f => ({ ...f, drinkId: id }))}
+              />
             )}
           </div>
         )}
 
-        {selectedShop?.sugarOptions?.length > 0 && (
-          <RadioGroup
-            label="甜度"
-            options={selectedShop.sugarOptions}
-            value={form.sugar}
-            onChange={v => setForm(f => ({ ...f, sugar: v }))}
-          />
-        )}
-        {selectedShop?.iceOptions?.length > 0 && (
-          <RadioGroup
-            label="冰塊"
-            options={selectedShop.iceOptions}
-            value={form.ice}
-            onChange={v => setForm(f => ({ ...f, ice: v }))}
-          />
-        )}
-        <RadioGroup
-          label="容量"
-          options={SIZES}
-          value={form.size}
-          onChange={v => setForm(f => ({ ...f, size: v }))}
-        />
-        {selectedShop?.toppingOptions?.length > 0 && (
-          <CheckboxGroup
-            label="配料"
-            options={selectedShop.toppingOptions}
-            value={form.toppings}
-            onChange={v => setForm(f => ({ ...f, toppings: v }))}
-          />
+        {selectedShop && (
+          <>
+            {effectiveSugarOpts.length > 0 && (
+              <RadioGroup
+                label="甜度"
+                options={fixedSugar === '固定' ? ['固定'] : effectiveSugarOpts}
+                value={fixedSugar === '固定' ? '固定' : form.sugar}
+                onChange={v => setForm(f => ({ ...f, sugar: v }))}
+                disabled={!!fixedSugar}
+                note={fixedSugar && fixedSugar !== '固定' ? '固定' : null}
+              />
+            )}
+
+            {effectiveIceOpts.length > 0 && (
+              <RadioGroup
+                label="冰塊"
+                options={fixedIce === '固定' ? ['固定'] : effectiveIceOpts}
+                value={fixedIce === '固定' ? '固定' : form.ice}
+                onChange={v => setForm(f => ({ ...f, ice: v }))}
+                disabled={!!fixedIce}
+                note={fixedIce && fixedIce !== '固定' ? '固定' : null}
+              />
+            )}
+
+            {effectiveSizeOpts.length > 0 && (
+              <RadioGroup
+                label="容量"
+                options={effectiveSizeOpts}
+                value={form.size}
+                onChange={v => setForm(f => ({ ...f, size: v }))}
+                disabled={effectiveSizeOpts.length === 1}
+                note={effectiveSizeOpts.length === 1 ? '固定' : null}
+              />
+            )}
+
+            {selectedShop.toppingOptions?.length > 0 && (
+              <CheckboxGroup
+                label="配料"
+                options={selectedShop.toppingOptions}
+                value={form.toppings}
+                onChange={v => setForm(f => ({ ...f, toppings: v }))}
+              />
+            )}
+          </>
         )}
 
         <StarPicker value={form.rating} onChange={v => setForm(f => ({ ...f, rating: v }))} />
